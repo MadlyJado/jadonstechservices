@@ -1,20 +1,18 @@
 import Image from "next/image";
 import NavBar from "./components/NavBar";
-import logo from "./lib/logo.png";
 
 export default function Home() {
   return (
-    <body className=" bg-gradient-to-r from-cyan-600 to-amber-800">
+    <>
       <NavBar />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
-        
           <div className="text-center mb-8">
-          <Image
-              src={logo}
+            <Image
+              src="/logo.png"
               alt="Jadon's Tech Services Logo"
-              width={500}
-              height={300}
+              width={150}
+              height={150}
               className="mx-auto mb-4"
             />
             <h1 className="text-4xl font-bold text-primary mb-2">Welcome to Jadon's Tech Services!</h1>
@@ -41,9 +39,12 @@ export default function Home() {
 
           <div className="text-center">
             <h2 className="text-3xl font-bold text-cyan-600 mb-4">I will NEVER overcharge you</h2>
+            <button className="bg-primary text-white font-bold py-2 px-4 rounded hover:bg-primary-dark transition duration-300">
+              Contact Me for a Free Consultation
+            </button>
           </div>
         </div>
       </main>
-    </body>
+    </>
   );
 }
