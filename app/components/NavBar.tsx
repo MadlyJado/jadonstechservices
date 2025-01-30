@@ -22,7 +22,7 @@ export default class NavBar extends Component {
             <Link className="menu-link" href="/">About</Link>
           </li>
           <li className="menu-item">
-            <Link className="menu-link" href="/">Services</Link>
+            <Link className="menu-link" href="/services">Services</Link>
           </li>
           <li className="menu-item">
             <Link className="menu-link" href="/">Contact</Link>
