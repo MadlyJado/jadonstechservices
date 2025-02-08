@@ -1,4 +1,6 @@
 // app/products/[id]/page.tsx
+'use client';
+
 import { products } from '../../data/products';
 import { useCart } from '../../context/CartContext';
 
