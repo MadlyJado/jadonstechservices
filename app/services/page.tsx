@@ -1,6 +1,9 @@
+import NavBar from "../components/NavBar";
+import ServiceRequestForm from "../components/ServiceRequestForm";
+
 export default function Services() {
     return (
-        <div>
+        /*<div>
         <h1>The services I offer are as follows:</h1>
         <ul>
             <li>Setup for Computers & Tablets: $20</li>
@@ -19,21 +22,11 @@ Once you decide on the SSD type that fits your needs, I can present you with var
                 <p>Just like with the Hard Disk Drive to SSD upgrade, I will present with various options to choose from, and the SATA/M.2 service still applies. The cost will be just the price of the ssd plus a $30 installation fee.</p>
             </li>
         </ul>
-
-
-
-
-
-
-
-
-   
-
-
-
-
-    
-
-        </div>
+    </div>*/
+      <body className="bg-gradient-to-l from-amber-600 to-yellow-400">
+            <NavBar/>
+            <ServiceRequestForm/>
+      </body>
     );
+    
 }
