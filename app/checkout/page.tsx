@@ -1,3 +1,5 @@
+import NavBar from "../components/NavBar";
+
 // app/checkout/page.tsx
 export default function CheckoutPage() {
     return (

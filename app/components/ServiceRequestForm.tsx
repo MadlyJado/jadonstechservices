@@ -55,7 +55,7 @@ export default function ServiceRequestForm() {
     <div className="flex items-center justify-center min-h-screen">
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
-          <h2 className="card-title">Service Request</h2>
+          <h2 className="card-title text-slate-400">Service Request</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
@@ -70,7 +70,7 @@ export default function ServiceRequestForm() {
               type="email"
               name="email"
               placeholder="Email"
-              className="input input-bordered w-full"
+              className="input input-bordered w-full text-slate-300"
               value={formData.email}
               onChange={handleChange}
               required

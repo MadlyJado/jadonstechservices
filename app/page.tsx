@@ -7,6 +7,7 @@ import logo from "./lib/logo.png";
 export default function Home() {
   return (
     <div className="bg-gradient-to-r from-cyan-600 to-amber-800">
+      
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
         

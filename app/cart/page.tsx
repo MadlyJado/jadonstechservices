@@ -1,6 +1,7 @@
 // app/cart/page.tsx
 'use client';
 
+import NavBar from '../components/NavBar';
 import { useCart } from '../context/CartContext';
 
 export default function CartPage() {
