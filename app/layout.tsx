@@ -32,9 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <CartProvider>
-          <div className="bg-transparent">
             <NavBar/>
-          </div>
             {children}
         </CartProvider>
       </body>
