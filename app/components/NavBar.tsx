@@ -12,7 +12,7 @@ export default function NavBar() {
 
   return (
     <>
-      <div className="navbar flex-col">
+      <div className="navbar flex-col bg-slate-800">
         <div className="flex-1">
           <Link href="/">
             <Image src={logo} alt="Jadon's Tech Services" width={128} height={128} />
