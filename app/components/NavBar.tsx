@@ -12,7 +12,7 @@ export default function NavBar() {
 
   return (
     <>
-      <div className="navbar flex-col bg-slate-800">
+      <div className="navbar flex-col bg-transparent">
         <div className="flex-1">
           <Link href="/">
             <Image src={logo} alt="Jadon's Tech Services" width={128} height={128} />
@@ -41,7 +41,7 @@ export default function NavBar() {
           </ul>
         </div>
       </div>
-      <h1 className="text-center text-2xl animate-slide-left-to-right">
+      <h1 className="text-center text-2xl animate-slide-left-to-right bg-transparent">
         I will NEVER overcharge you!!
       </h1>
     </>
