@@ -1,8 +1,7 @@
-// components/ServiceRequestForm.tsx
-
 'use client';
 
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
 interface FormData {
   name: string;
@@ -11,26 +10,10 @@ interface FormData {
 }
 
 export default function ServiceRequestForm() {
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    email: '',
-    message: '',
-  });
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [status, setStatus] = useState<string>('');
 
-  // Handle changes for both input and textarea fields
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
     setStatus('Sending...');
     try {
       const res = await fetch('/api/sendEmail', {
@@ -38,7 +21,7 @@ export default function ServiceRequestForm() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(data),
       });
       if (res.ok) {
         setStatus('Request sent successfully!');
@@ -56,33 +39,33 @@ export default function ServiceRequestForm() {
       <div className="card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
           <h2 className="card-title text-slate-400">Service Request</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <input
+              {...register("name", { required: "Name is required" })}
               type="text"
-              name="name"
               placeholder="Name"
-              className="input input-bordered w-full"
-              value={formData.name}
-              onChange={handleChange}
-              required
+              className="input input-bordered w-full text-slate-500"
             />
+            {errors.name && <p className="text-red-500">{errors.name.message}</p>}
             <input
+              {...register("email", { 
+                required: "Email is required",
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "Invalid email address"
+                }
+              })}
               type="email"
-              name="email"
               placeholder="Email"
               className="input input-bordered w-full text-slate-300"
-              value={formData.email}
-              onChange={handleChange}
-              required
             />
+            {errors.email && <p className="text-red-500">{errors.email.message}</p>}
             <textarea
-              name="message"
+              {...register("message", { required: "Message is required" })}
               placeholder="Describe your service request"
-              className="textarea textarea-bordered w-full"
-              value={formData.message}
-              onChange={handleChange}
-              required
+              className="textarea textarea-bordered w-full text-slate-300"
             />
+            {errors.message && <p className="text-red-500">{errors.message.message}</p>}
             <button type="submit" className="btn btn-primary w-full">
               Submit Request
             </button>

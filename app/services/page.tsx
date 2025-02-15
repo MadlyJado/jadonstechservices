@@ -1,4 +1,3 @@
-import NavBar from "../components/NavBar";
 import ServiceRequestForm from "../components/ServiceRequestForm";
 
 export default function Services() {

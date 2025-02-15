@@ -1,8 +1,11 @@
 // app/api/sendEmail/route.ts
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
 export async function POST(request: Request): Promise<Response> {
   try {
+    const ticketNum = crypto.randomInt(1000000000)
+
     // Parse the JSON body from the incoming request
     const { name, email, message } = await request.json();
 
@@ -18,8 +21,9 @@ export async function POST(request: Request): Promise<Response> {
     // Define the email options
     const mailOptions = {
       from: process.env.GMAIL_USER,
-      to: process.env.GMAIL_USER, // Sends the email to your Gmail account
-      subject: `New Service Request from ${name}`,
+      to: [process.env.GMAIL_USER, email],
+      cc: process.env.GMAIL_USER, // Sends the email to your Gmail account
+      subject: `New Service Request from ${name} Ticket Num: ${ticketNum}`,
       text: `You have a new service request.\n\nName: ${name}\nEmail: ${email}\nMessage: ${message}`,
     };
 
