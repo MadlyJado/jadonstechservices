@@ -9,6 +9,66 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  components: {
+    "CPU": {
+      "name": "",
+      "model": "",
+      "price": 0,
+      "vendor": "",
+      "Generation": ""
+    },
+    "RAM": {
+      "Size": "8GB",
+      "name": "",
+      "price": 0,
+      "vendor": "",
+      "DDR version": "DDR4"
+    },
+    "Case": {
+      "Size": "Mid Tower",
+      "name": "",
+      "price": 0,
+      "vendor": ""
+    },
+    "Mouse": {
+      "name": "",
+      "price": 0,
+      "vendor": ""
+    },
+    "Monitor": {
+      "Size": "",
+      "name": "",
+      "price": 0,
+      "vendor": "",
+      "Resolution": "",
+      "Refresh Rate": ""
+    },
+    "Keyboard": {
+      "name": "",
+      "price": 0,
+      "vendor": ""
+    },
+    "Motherboard": {
+      "name": "",
+      "price": 0,
+      "vendor": "",
+      "Socket Type": "",
+      "Socket Model": ""
+    },
+    "PowerSupply": {
+      "name": "",
+      "price": 0,
+      "vendor": "",
+      "Wattage": "",
+      "80 plus rating": ""
+    },
+    "Graphics Card": {
+      "name": "",
+      "price": 0,
+      "vendor": "",
+      "VRAM Size": "8GB"
+    }
+  }
 }
 
 interface CartContextType {
