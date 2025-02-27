@@ -4,12 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import React from 'react';
 import logo from "../lib/logo.png";
-import { useCart } from '../context/CartContext';
 
 export default function NavBar() {
-  const { cart } = useCart();
-  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-
   return (
       <div className='bg-gradient-to-r from-stone-700 to-slate-400'>
           <div className="navbar flex-col">
@@ -30,13 +26,7 @@ export default function NavBar() {
                 <Link className="menu-link" href="/">Contact Me</Link>
               </li>
               <li className="menu-item text-lg">
-                <Link href="/products">Products</Link>
-              </li>
-              <li>
-                <Link href="/cart">
-                  Cart
-                  {cartCount > 0 && <span className="badge badge-secondary ml-1">{cartCount}</span>}
-                </Link>
+                <Link href="/custom-pc">Buy a customized computer</Link>
               </li>
             </ul>
           </div>
