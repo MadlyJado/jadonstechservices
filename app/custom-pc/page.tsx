@@ -5,7 +5,7 @@ import Dropdown from "../components/Dropdown";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
-const categories = ["cpu", "motherboard", "memory", "storage"];
+const categories = ["cpu", "motherboard", "memory", "storage", "graphics", "power", "case"];
 
 const CustomPCBuilder = () => {
   const [selectedComponents, setSelectedComponents] = useState<{ [key: string]: any }>({});
