@@ -1,58 +1,64 @@
-import Stripe from "stripe";
-import { NextResponse } from "next/server";
-import { supabase } from "../../lib/supabase";
+import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabaseClient";
+import { addDays, startOfDay, endOfDay } from "date-fns";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
-});
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const session_id = url.searchParams.get("session_id");
 
-export async function GET(req: Request) {
+  if (!session_id) {
+    return new NextResponse(JSON.stringify({ error: "Session ID is required" }), { status: 400 });
+  }
+
   try {
-    const { searchParams } = new URL(req.url);
-    const sessionId = searchParams.get("session_id");
+    // Fetch order from Supabase
+    const { data: order, error } = await supabase
+      .from("orders")
+      .select("*")
+      .eq("session_id", session_id)
+      .single();
 
-    if (!sessionId) {
-      console.error("Error: No session_id provided.");
-      return NextResponse.json({ error: "Session ID is required" }, { status: 400 });
+    if (error || !order) {
+      return new NextResponse(JSON.stringify({ error: "Order not found" }), { status: 404 });
     }
 
-    console.log("Fetching Stripe session:", sessionId);
+    // Count today's orders
+    const todayStart = startOfDay(new Date()).toISOString();
+    const todayEnd = endOfDay(new Date()).toISOString();
 
-    // Retrieve checkout session from Stripe (No need to expand)
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const { count, error: countError } = await supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true })
+      .gte("created_at", todayStart)
+      .lte("created_at", todayEnd);
 
-    console.log("Stripe session retrieved:", session);
-
-    if (!session || !session.shipping_details) {
-      console.error("Error: No shipping details found in session.");
-      return NextResponse.json({ error: "No shipping details available" }, { status: 500 });
+    if (countError) {
+      console.error("Error fetching today's orders:", countError);
+      return new NextResponse(JSON.stringify({ error: "Error retrieving today's orders" }), { status: 500 });
     }
 
-    // Get recent purchase count for delivery logic
-    const { count } = await supabase
-      .from("purchases")
-      .select("id", { count: "exact" })
-      .gte("purchase_date", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString());
+    // Base delivery time
+    let deliveryDays = 5;
 
-    console.log("Purchase count in last 7 days:", count);
-
-    // Calculate estimated delivery date
-    let deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 14); // Default 2 weeks
-
-    if (count >= 3) {
-      deliveryDate.setDate(deliveryDate.getDate() + 14); // Delay by 2 more weeks
+    // Apply exponential delay if more than 3 orders today
+    if (count && count > 3) {
+      let extraDays = Math.pow(2, count - 3); // Exponential growth
+      deliveryDays += extraDays;
     }
 
-    console.log("Estimated delivery date:", deliveryDate.toISOString().split("T")[0]);
+    const estimatedDelivery = addDays(new Date(), deliveryDays);
 
-    // Return shipping details and delivery date
-    return NextResponse.json({
-      shipping_details: session.customer_details?.address || null,
-      delivery_date: deliveryDate.toISOString().split("T")[0],
-    });
-  } catch (error) {
-    console.error("Stripe API Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return new NextResponse(
+      JSON.stringify({
+        shipping_details: order.shipping_details,
+        delivery_date: estimatedDelivery.toISOString().split("T")[0], // Format YYYY-MM-DD
+        orders_today: count,
+        delay_added: deliveryDays - 5, // Show how much delay was added
+      }),
+      { status: 200 }
+    );
+  } catch (err) {
+    console.error("Error fetching session details:", err);
+    return new NextResponse(JSON.stringify({ error: "Internal Server Error" }), { status: 500 });
   }
 }

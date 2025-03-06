@@ -2,21 +2,11 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-interface ShippingInfo {
-  line1: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  country: string;
-}
-
-export default function Success() {
+const Success = () => {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
-  const [shippingInfo, setShippingInfo] = useState<ShippingInfo | null>(null);
+  const [shippingInfo, setShippingInfo] = useState<any>(null);
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
-  const [ordersToday, setOrdersToday] = useState<number | null>(null);
-  const [delayAdded, setDelayAdded] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -41,8 +31,6 @@ export default function Success() {
 
         setShippingInfo(data.shipping_details);
         setDeliveryDate(data.delivery_date);
-        setOrdersToday(data.orders_today);
-        setDelayAdded(data.delay_added);
       } catch (error) {
         console.error("Error fetching session details:", error);
         setErrorMessage("Failed to load order details. Please try again.");
@@ -75,11 +63,12 @@ export default function Success() {
         <div className="mt-4 p-4 bg-white rounded-lg shadow-md">
           <h2 className="text-lg font-semibold">Estimated Delivery Date:</h2>
           <p className="text-gray-700">{deliveryDate}</p>
-          {ordersToday && delayAdded !== null && (
-            <p className="text-sm text-gray-500">🚨 {ordersToday} orders today. Delivery delayed by {delayAdded} days.</p>
-          )}
         </div>
       )}
+
+      <a href="/custom-pc" className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">Build Another PC</a>
     </div>
   );
-}
+};
+
+export default Success;
