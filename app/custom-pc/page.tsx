@@ -36,30 +36,33 @@ const CustomPCBuilder = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg mt-10">
-      <h1 className="text-2xl font-bold mb-6">Build Your Custom PC</h1>
+    <div className="bg-gradient-to-tl from-bg-emerald-700 to-bg-indigo-700">
+       <div className="max-w-3xl mx-auto p-6 bg-lime-950 rounded-xl shadow-lg mt-10">
+        <h1 className="text-2xl font-bold mb-6">Build Your Custom PC</h1>
 
-      {categories.map((category) => (
-        <Dropdown
-          key={category}
-          category={category}
-          selectedComponent={selectedComponents[category]}
-          setSelectedComponent={(component) => setComponent(category, component)}
-        />
-      ))}
+        {categories.map((category) => (
+          <Dropdown
+            key={category}
+            category={category}
+            selectedComponent={selectedComponents[category]}
+            setSelectedComponent={(component) => setComponent(category, component)}
+          />
+        ))}
 
-      <div className="mt-6 p-4 border-t">
-        <h2 className="text-xl font-semibold">Total Price: ${totalPrice.toFixed(2)}</h2>
+        <div className="mt-6 p-4 border-t">
+          <h2 className="text-xl font-semibold">Total Price: ${totalPrice.toFixed(2)}</h2>
+        </div>
+
+        <button
+          onClick={handleCheckout}
+          className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          disabled={totalPrice === 0}
+        >
+          Checkout with Stripe
+        </button>
       </div>
-
-      <button
-        onClick={handleCheckout}
-        className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
-        disabled={totalPrice === 0}
-      >
-        Checkout with Stripe
-      </button>
     </div>
+   
   );
 };
 
