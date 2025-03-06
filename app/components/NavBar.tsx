@@ -20,10 +20,7 @@ export default function NavBar() {
                 <Link className="menu-link" href="/">Home</Link>
               </li>
               <li className="menu-item text-lg">
-                <Link className="menu-link" href="/services">Services</Link>
-              </li>
-              <li className="menu-item text-lg">
-                <Link className="menu-link" href="/">Contact Me</Link>
+                <Link className="menu-link" href="/services">Request Services</Link>
               </li>
               <li className="menu-item text-lg">
                 <Link href="/custom-pc">Buy a customized computer</Link>
