@@ -37,9 +37,9 @@ const Dropdown: React.FC<DropdownProps> = ({ category, selectedComponent, setSel
 
   return (
     <div className="mb-4">
-      <label className="block text-gray-700 font-medium mb-2">{category.toUpperCase()}</label>
+      <label className="block text-indigo-300 font-medium mb-2 text-center">{category.toUpperCase()}</label>
       <select
-        className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
+        className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 text-center"
         value={selectedComponent ? selectedComponent.id : ""}
         onChange={(e) => {
           const selected = options.find((item) => String(item.id) === e.target.value);
@@ -58,7 +58,7 @@ const Dropdown: React.FC<DropdownProps> = ({ category, selectedComponent, setSel
         )}
       </select>
       {selectedComponent && (
-        <p className="mt-2 text-sm text-gray-600">
+        <p className="mt-2 text-sm text-indigo-400 text-center">
           Selected: {selectedComponent.name} - ${selectedComponent.price}
         </p>
       )}
