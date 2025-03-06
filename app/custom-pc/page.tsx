@@ -17,7 +17,7 @@ const CustomPCBuilder = () => {
 
   // Calculate total price of selected components
   const totalPrice = Object.values(selectedComponents).reduce(
-    (sum, component) => sum + (component?.price+75 || 0),
+    (sum, component) => sum + (component?.price+50 || 0),
     0
   );
 
