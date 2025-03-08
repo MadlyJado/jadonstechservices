@@ -13,6 +13,7 @@ interface ShippingInfo {
 export default function Success() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
+
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo | null>(null);
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   const [ordersToday, setOrdersToday] = useState<number | null>(null);
@@ -53,7 +54,7 @@ export default function Success() {
   }, [sessionId]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-green-100">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-green-100 p-4">
       <h1 className="text-3xl font-bold text-green-700">Payment Successful!</h1>
       <p className="mt-2 text-gray-700">Thank you for your purchase.</p>
 
@@ -75,8 +76,16 @@ export default function Success() {
         <div className="mt-4 p-4 bg-white rounded-lg shadow-md">
           <h2 className="text-lg font-semibold">Estimated Delivery Date:</h2>
           <p className="text-gray-700">{deliveryDate}</p>
-          {ordersToday && delayAdded !== null && (
-            <p className="text-sm text-gray-500">🚨 {ordersToday} orders today. Delivery delayed by {delayAdded} days.</p>
+          
+          {ordersToday !== null && delayAdded !== null && (
+            <div className="mt-2 text-sm text-gray-500">
+              <p>📦 Orders placed today: <span className="font-semibold">{ordersToday}</span></p>
+              {ordersToday >= 3 ? (
+                <p>🚨 Due to high demand, your delivery has been delayed by <span className="font-semibold">{delayAdded}</span> days.</p>
+              ) : (
+                <p>✅ No delays added—your order will be delivered on time.</p>
+              )}
+            </div>
           )}
         </div>
       )}

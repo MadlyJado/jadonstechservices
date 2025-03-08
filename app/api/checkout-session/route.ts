@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     const { data: orders, error } = await supabase
       .from("orders") // Replace with your actual table name
       .select("id")
-      .eq("created_at", todayDate); // Assuming "order_date" is a column storing order timestamps
+      .eq("order_date", todayDate); // Assuming "order_date" is a column storing order timestamps
 
     if (error) {
       console.error("Error fetching orders:", error);
