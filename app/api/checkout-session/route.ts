@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../..//lib/supabase";
 import { addDays, startOfDay, endOfDay } from "date-fns";
 
 export async function GET(req: NextRequest) {

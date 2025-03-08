@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../lib/supabase";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2023-10-16",
-});
+import { stripe } from "../../lib/stripe";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
