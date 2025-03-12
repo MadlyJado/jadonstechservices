@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+<<<<<<< HEAD
 import {stripe} from "../../lib/stripe";
 import {supabase} from "../../lib/supabase";
 
@@ -18,6 +19,10 @@ const getDefaultDeliveryDate = () => {
 const calculateDelayByOrdersPerDay = (ordersToday: number) => {
   return Math.floor(ordersToday / 3) * 7; // Adds 1 extra week for every 3 orders
 };
+=======
+import { supabase } from "../../lib/supabase";
+import { addDays, startOfDay, endOfDay } from "date-fns";
+>>>>>>> a7d1892 (Added some new stuffs to checkout-session and webhook api routes)
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
