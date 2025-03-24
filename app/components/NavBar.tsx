@@ -14,7 +14,7 @@ export default function NavBar() {
               <Image src={logo} alt="Jadon's Tech Services" width={128} height={128} />
             </Link>
           </div>
-          <div className="flex-none">
+          <div className="flex-none navbar-start">
             <ul className="menu menu-horizontal px-1 text-violet-400">
               <li className="menu-item text-lg">
                 <Link className="menu-link" href="/">Home</Link>
@@ -26,6 +26,9 @@ export default function NavBar() {
                 <Link href="/custom-pc">Buy a customized computer</Link>
               </li>
             </ul>
+          </div>
+          <div className="flex-none navbar-end">
+            <Link className="btn-primary btn-circle btm-nav-md" href="/login">Login</Link>
           </div>
           <h1 className="text-center text-2xl animate-slide-left-to-right text-emerald-900">
           I will NEVER overcharge you!!

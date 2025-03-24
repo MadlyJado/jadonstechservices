@@ -1,7 +1,6 @@
 'use client';
 
 import Image from "next/image";
-import NavBar from "./components/NavBar";
 import logo from "./lib/logo.png";
 
 export default function Home() {
