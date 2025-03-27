@@ -1,9 +1,16 @@
-import LoginPrompt from "../components/LoginPrompt";
+import NavBar from "../components/NavBar";
+import SignUpPrompt from "../components/SignUpPrompt";
 
 export default function Page() {
     return (
-        <div className="bg-gradient-to-bl from-indigo-900 to-cyan-600">
-            <LoginPrompt/>
-        </div>
+                
+                <div className="h-screen w-screen bg-gradient-to-br from-indigo-800 to-cyan-600">
+                    <NavBar />
+                    <div>
+                        <SignUpPrompt/>
+                    </div>
+                    
+                </div>
+                
     );
 }

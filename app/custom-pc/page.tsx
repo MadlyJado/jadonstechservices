@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import Dropdown from "../components/Dropdown";
+import NavBar from "../components/NavBar";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
@@ -36,7 +37,10 @@ const CustomPCBuilder = () => {
   };
 
   return (
+    <>
+    <NavBar />
     <div className="bg-gradient-to-tl from-emerald-700 to-indigo-700 flex items-center justify-center min-h-screen">
+      
        <div className="max-w-3xl mx-auto p-6 mt-10 items-center">
         <h1 className="text-2xl font-bold mb-6 text-amber-700 text-center">Build Your Custom PC</h1>
 
@@ -62,7 +66,7 @@ const CustomPCBuilder = () => {
         </button>
       </div>
     </div>
-   
+    </>
   );
 };
 

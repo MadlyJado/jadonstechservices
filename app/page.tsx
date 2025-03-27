@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import logo from "./lib/logo.png";
+import NavBar from "./components/NavBar";
 
 export default function Home() {
   return (
     <div className="bg-gradient-to-r from-cyan-600 to-amber-800">
-      
+      <NavBar />
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
         
