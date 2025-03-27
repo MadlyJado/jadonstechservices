@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "../../lib/stripe";
-import { supabase } from "../../lib/supabase";
 import Stripe from "stripe";
+import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/app/lib/supabase";
+
+const supabaseclient = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -13,18 +19,20 @@ export async function POST(req: NextRequest) {
     const event = stripe.webhooks.constructEvent(
       payload,
       sig as string,
-      webhookSecret as string
+      webhookSecret
     );
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const todayDate = new Date().toISOString().split("T")[0];
+      const userId = session.metadata?.user_id;
 
-      // Insert order into Supabase
-      const { error } = await supabase.from("orders").insert([
+      // Example: save order with session ID
+      const { error } = await supabaseclient.from("orders").insert([
         {
           session_id: session.id,
           order_date: todayDate,
+          user_id: userId,
         },
       ]);
 

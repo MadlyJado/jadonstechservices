@@ -30,7 +30,9 @@ const CustomPCBuilder = () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: Object.values(selectedComponents) }),
+      credentials: "include", // 👈 this tells the browser to send cookies (like sb-access-token)
     });
+    
 
     const { sessionId } = await response.json();
     stripe?.redirectToCheckout({ sessionId });
