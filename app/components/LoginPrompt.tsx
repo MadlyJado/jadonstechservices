@@ -3,12 +3,28 @@
 import React from 'react';
 import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import { supabase } from '../lib/supabase';
+
+type FormData = {
+  email: string;
+  password: string;
+}
 
 export default function LoginPrompt() {
   const { register: login, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [status, setStatus] = useState<string>('');
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-      setStatus("Test Success!");
+      const { email, password } = data;
+      setStatus("Logging in...");
+      const signin = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      if(signin.error) {
+        setStatus(signin.error.message);
+      } else {
+        setStatus("Login successful!");
+      }
   };
 
   return (
