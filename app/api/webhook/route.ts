@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "../../lib/stripe";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
-import { supabase } from "@/app/lib/supabase";
 
 const supabaseclient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

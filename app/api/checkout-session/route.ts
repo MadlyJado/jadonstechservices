@@ -1,6 +1,7 @@
 // app/api/checkout-session/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { createClient } from '@supabase/supabase-js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -19,14 +20,19 @@ export async function GET(req: NextRequest) {
 
     // Calculate base delivery date (e.g., 5 days out)
     const baseDelivery = new Date();
-    baseDelivery.setDate(baseDelivery.getDate() + 5);
+    baseDelivery.setDate(baseDelivery.getDate() + 14);
 
     let additionalDelay = 0;
 
     try {
-      const delayResponse = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/shippingDelay`);
-      const delayData = await delayResponse.json();
-      additionalDelay = delayData.shippingDelayDays || 0;
+      const supabaseServClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+      const orders = await supabaseServClient.from('orders').select('*').eq('order_date', baseDelivery.toISOString().split('T')[0]);
+      if (orders.count != null && orders.count > 3 && orders.count < 10) {
+        additionalDelay = baseDelivery.getDate() + 14;
+      }
+      else if (orders.count!= null && orders.count > 10) {
+          additionalDelay = baseDelivery.getDate() + 30;
+      }
     } catch (delayErr) {
       console.warn("Unable to fetch shipping delay:", delayErr);
     }
@@ -36,7 +42,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       session_id: session.id,
-      shipping_details: session.shipping_details?.address,
+      shipping_details: session.shipping_details?.address, 
       delivery_date: finalDelivery.toISOString().split('T')[0],
       delay_added: additionalDelay,
     });
