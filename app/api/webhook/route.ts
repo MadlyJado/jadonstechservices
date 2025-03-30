@@ -3,7 +3,7 @@ import { stripe } from "../../lib/stripe";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseclient = createClient(
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
@@ -23,27 +23,44 @@ export async function POST(req: NextRequest) {
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      const todayDate = new Date().toISOString().split("T")[0];
-      const userId = session.metadata?.user_id;
+      
+      // Retrieve full session with shipping details
+      const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
+        expand: ['shipping_details.address']
+      });
 
-      // Example: save order with session ID
-      const { error } = await supabaseclient.from("orders").insert([
-        {
-          session_id: session.id,
-          order_date: todayDate,
-          user_id: userId,
-        },
-      ]);
+      const userId = session.metadata?.user_id;
+      const shippingAddress = fullSession.shipping_details?.address;
+
+      // Calculate delivery date (similar to GET endpoint)
+      const baseDelivery = new Date();
+      baseDelivery.setDate(baseDelivery.getDate() + 14);
+
+      // Insert order with shipping address
+      const { error } = await supabaseAdmin.from("orders").insert([{
+        session_id: session.id,
+        user_id: userId,
+        order_date: new Date().toISOString(),
+        shipping_address: shippingAddress,
+        delivery_date: baseDelivery.toISOString().split('T')[0],
+        status: 'processing'
+      }]);
 
       if (error) {
-        console.error("Error inserting order:", error);
-        return NextResponse.json({ error: "Failed to save order." }, { status: 500 });
+        console.error("Order creation error:", error);
+        return NextResponse.json(
+          { error: "Failed to save order" },
+          { status: 500 }
+        );
       }
     }
 
     return NextResponse.json({ received: true });
   } catch (err) {
     console.error("Webhook Error:", err);
-    return NextResponse.json({ error: "Webhook error" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Webhook handler failed" },
+      { status: 400 }
+    );
   }
 }

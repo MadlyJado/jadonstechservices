@@ -6,48 +6,57 @@ import { createClient } from '@supabase/supabase-js';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const sessionId = searchParams.get('session_id');
-
-  if (!sessionId) {
-    return NextResponse.json({ error: 'Missing session_id' }, { status: 400 });
-  }
-
   try {
+    const { searchParams } = new URL(req.url);
+    const sessionId = searchParams.get('session_id');
+
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: 'Missing session_id parameter' },
+        { status: 400 }
+      );
+    }
+
+    // Retrieve session with expanded shipping details
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['shipping_details'],
+      expand: ['shipping_details.address'],
     });
 
-    // Calculate base delivery date (e.g., 5 days out)
+    // Calculate base delivery date (14 days from now)
     const baseDelivery = new Date();
     baseDelivery.setDate(baseDelivery.getDate() + 14);
 
-    let additionalDelay = 0;
+    // Check for delivery delays
+    let delayAdded = false;
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
-    try {
-      const supabaseServClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-      const orders = await supabaseServClient.from('orders').select('*').eq('order_date', baseDelivery.toISOString().split('T')[0]);
-      if (orders.count != null && orders.count > 3 && orders.count < 10) {
-        additionalDelay = baseDelivery.getDate() + 14;
-      }
-      else if (orders.count!= null && orders.count > 10) {
-          additionalDelay = baseDelivery.getDate() + 30;
-      }
-    } catch (delayErr) {
-      console.warn("Unable to fetch shipping delay:", delayErr);
+    // Count orders scheduled for the same delivery date
+    const { count } = await supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('delivery_date', baseDelivery.toISOString().split('T')[0]);
+
+    // Apply delay if more than 3 orders exist
+    if (count && count > 3) {
+      baseDelivery.setDate(baseDelivery.getDate() + 7); // Add 7 day delay
+      delayAdded = true;
     }
-
-    const finalDelivery = new Date(baseDelivery);
-    finalDelivery.setDate(baseDelivery.getDate() + additionalDelay);
 
     return NextResponse.json({
       session_id: session.id,
-      shipping_details: session.shipping_details?.address, 
-      delivery_date: finalDelivery.toISOString().split('T')[0],
-      delay_added: additionalDelay,
+      shipping_details: session.shipping_details?.address || null,
+      delivery_date: baseDelivery.toISOString().split('T')[0],
+      delay_added: delayAdded,
+      status: 'success',
     });
-  } catch (error) {
-    console.error('Stripe session fetch error:', error);
-    return NextResponse.json({ error: 'Failed to retrieve session' }, { status: 500 });
+  } catch (err) {
+    console.error('Stripe session retrieval error:', err);
+    return NextResponse.json(
+      { error: 'Failed to retrieve session', details: err.message },
+      { status: 500 }
+    );
   }
 }

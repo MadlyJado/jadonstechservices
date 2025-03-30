@@ -1,42 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '../../lib/stripe'
-import { createClient } from '@supabase/supabase-js';
-import { supabase } from '@/app/lib/supabase';
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export async function POST(req: NextRequest) {
   try {
-    // 🔹 Parse items from body
-    const { items }: { items: { name: string; price: number }[] } = await req.json()
+    // Initialize Supabase client with cookie handling
+    const cookieStore = cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: '', ...options })
+          },
+        },
+      }
+    )
+
+    // Get user session
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Verify user is authenticated
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { items } = await req.json()
 
     if (!items || items.length === 0) {
-      return NextResponse.json({ error: 'No items selected' }, { status: 400 })
+      return NextResponse.json({ error: 'No items provided' }, { status: 400 })
     }
 
-    const accessToken = (await supabase.auth.getSession()).data.session?.access_token;
-
-    const supabaseClient = createClient(process.env.SUPABASE_URL, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      },
-    })
-
-    if (!accessToken) {
-      console.log("No access token found. Unable to create checkout session.")
-      return NextResponse.json({ error: 'Unauthorized: No access token' }, { status: 401 })
-    }
-
-   
-
-
-    if (userError || !user) {
-      console.log('Error fetching user:', userError);
-      return NextResponse.json({ error: 'Unauthorized: Invalid token' }, { status: 401 })
-    }
-
-    // 🔹 Build Stripe line items
-    const lineItems = items.map((item) => ({
+    const lineItems = items.map((item: { name: string; price: number }) => ({
       price_data: {
         currency: 'usd',
         product_data: {
@@ -47,7 +50,6 @@ export async function POST(req: NextRequest) {
       quantity: 1,
     }))
 
-    // 🔹 Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
@@ -58,13 +60,16 @@ export async function POST(req: NextRequest) {
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/cancel`,
       metadata: {
-        user_id: user.id,
+        user_id: user.id, // Use the verified user ID from session
       },
     })
 
     return NextResponse.json({ sessionId: session.id })
-  } catch (error) {
-    console.error('Stripe Checkout Error:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  } catch (err) {
+    console.error('Checkout Error:', err)
+    return NextResponse.json(
+      { error: 'Internal Server Error' }, 
+      { status: 500 }
+    )
   }
 }
