@@ -17,10 +17,21 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Retrieve session with expanded shipping details
+    // Retrieve session WITHOUT expanding shipping_details
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['shipping_details.address'],
+      expand: ['customer'] // Only expand properties that are allowed
     });
+
+    const shippingDetails = session.shipping_details?.address || {};
+
+    const formattedShipping = {
+      line1: shippingDetails.line1 || '',
+      line2: shippingDetails.line2 || null,
+      city: shippingDetails.city || '',
+      state: shippingDetails.state || '',
+      postal_code: shippingDetails.postal_code || '',
+      country: shippingDetails.country || ''
+    };
 
     // Calculate base delivery date (14 days from now)
     const baseDelivery = new Date();
@@ -47,12 +58,13 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       session_id: session.id,
-      shipping_details: session.shipping_details?.address || null,
+      // Access shipping_details directly without expansion
+      shipping_details: formattedShipping || null,
       delivery_date: baseDelivery.toISOString().split('T')[0],
       delay_added: delayAdded,
       status: 'success',
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('Stripe session retrieval error:', err);
     return NextResponse.json(
       { error: 'Failed to retrieve session', details: err.message },

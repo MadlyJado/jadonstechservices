@@ -24,26 +24,59 @@ export async function POST(req: NextRequest) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       
-      // Retrieve full session with shipping details
-      const fullSession = await stripe.checkout.sessions.retrieve(session.id, {
-        expand: ['shipping_details.address']
-      });
-
-      const userId = session.metadata?.user_id;
+      // Retrieve session without expanding shipping_details
+      const fullSession = await stripe.checkout.sessions.retrieve(session.id);
+      
+      // Shipping details are already included in the session object
       const shippingAddress = fullSession.shipping_details?.address;
 
-      // Calculate delivery date (similar to GET endpoint)
+      const formattedShippingAddress = {
+        line1: shippingAddress?.line1 || '',
+        line2: shippingAddress?.line2 || null,
+        city: shippingAddress?.city || '',
+        state: shippingAddress?.state || '',
+        postal_code: shippingAddress?.postal_code || '',
+        country: shippingAddress?.country || ''
+      };
+
+      const userId = session.metadata?.user_id;
+
+      // Calculate delivery date (14 days from now)
       const baseDelivery = new Date();
       baseDelivery.setDate(baseDelivery.getDate() + 14);
+
+      // In your webhook handler, add a check for existing orders:
+      const { data: existingOrder } = await supabaseAdmin
+      .from('orders')
+      .select('id')
+      .eq('session_id', session.id)
+      .single();
+
+      if (existingOrder) {
+      return NextResponse.json({ received: true, message: 'Order already exists' });
+      }
+
+      // Check for delivery delays (similar to your GET endpoint)
+      let delayAdded = false;
+      const { count } = await supabaseAdmin
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('delivery_date', baseDelivery.toISOString().split('T')[0]);
+
+      if (count && count > 3) {
+        baseDelivery.setDate(baseDelivery.getDate() + 7);
+        delayAdded = true;
+      }
 
       // Insert order with shipping address
       const { error } = await supabaseAdmin.from("orders").insert([{
         session_id: session.id,
         user_id: userId,
         order_date: new Date().toISOString(),
-        shipping_address: shippingAddress,
+        shipping_address: formattedShippingAddress,
         delivery_date: baseDelivery.toISOString().split('T')[0],
-        status: 'processing'
+        status: 'processing',
+        delay_added: delayAdded
       }]);
 
       if (error) {
@@ -56,10 +89,10 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ received: true });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Webhook Error:", err);
     return NextResponse.json(
-      { error: "Webhook handler failed" },
+      { error: err.message || "Webhook handler failed" },
       { status: 400 }
     );
   }

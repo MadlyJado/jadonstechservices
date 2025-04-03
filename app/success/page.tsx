@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "../lib/supabase"; // Updated import
+import { supabase } from "../lib/supabase";
 
 interface ShippingInfo {
   line1?: string;
@@ -13,10 +13,10 @@ interface ShippingInfo {
 }
 
 interface OrderDetails {
-  shipping_address: ShippingInfo;
+  shipping_address: ShippingInfo | null; // Make it nullable
   delivery_date: string;
   status: string;
-  order_date: string;
+  order_date: Date;
 }
 
 export default function Success() {
@@ -35,60 +35,44 @@ export default function Success() {
       return;
     }
 
-    // Update the fetchOrderDetails function in your success page
-const fetchOrderDetails = async () => {
-  try {
-    setLoading(true);
-    setError(null);
+    const fetchOrderDetails = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Just fetch existing order instead of creating
+        const { data: order, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('session_id', sessionId)
+          .single();
     
-    if (!sessionId) {
-      throw new Error('Missing session ID');
-    }
+          console.log('Fetched order:', order);
 
-    // Fetch session details
-    const sessionResponse = await fetch(`/api/checkout-session?session_id=${sessionId}`);
+        if (error) throw error;
+        if (!order) throw new Error('Order not found');
     
-    if (!sessionResponse.ok) {
-      const errorData = await sessionResponse.json().catch(() => ({}));
-      throw new Error(
-        errorData.error || 
-        errorData.message || 
-        `Server responded with ${sessionResponse.status}`
-      );
-    }
-
-    const sessionData = await sessionResponse.json();
-    
-    if (!sessionData || sessionData.error) {
-      throw new Error(sessionData.error || 'Invalid session data');
-    }
-
-    // Get user session
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (!user) throw new Error('User not authenticated');
-
-    // Rest of your order processing logic...
-    
-  } catch (err) {
-    console.error('Order details fetch error:', err);
-    setError(
-      err instanceof Error ? 
-      err.message : 
-      'Failed to load order details. Please try again later.'
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+        setOrderDetails({
+          shipping_address: order.shipping_address,
+          delivery_date: order.delivery_date,
+          status: order.status,
+          order_date: order.order_date,
+        });
+        setDelayAdded(order.delay_added || false);
+        setLoading(false);
+      } catch (e: any) {
+        setError(e.message);
+      }
+    };
 
     fetchOrderDetails();
-  }, [sessionId, supabase]);
+  }, [sessionId]);
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-green-50 p-4">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mb-4"></div>
-        <p className="text-green-700">Loading your order details...</p>
+        <p className="text-green-700">Processing your order...</p>
       </div>
     );
   }
@@ -139,7 +123,7 @@ const fetchOrderDetails = async () => {
               <div>
                 <p className="text-sm text-gray-500">Order Date</p>
                 <p className="font-medium">
-                  {orderDetails?.order_date || "Not available"}
+                  {new Date(orderDetails?.order_date || '').toLocaleDateString()}
                 </p>
               </div>
               <div>
@@ -152,22 +136,30 @@ const fetchOrderDetails = async () => {
           </div>
 
           {/* Shipping Information */}
-          {orderDetails?.shipping_address && (
-            <div className="border-b pb-4">
-              <h2 className="text-lg font-semibold text-gray-800">Shipping Address</h2>
-              <div className="mt-2 space-y-1">
-                <p>{orderDetails.shipping_address.line1}</p>
-                {orderDetails.shipping_address.line2 && (
-                  <p>{orderDetails.shipping_address.line2}</p>
-                )}
-                <p>
-                  {orderDetails.shipping_address.city}, {orderDetails.shipping_address.state}{" "}
-                  {orderDetails.shipping_address.postal_code}
-                </p>
-                <p>{orderDetails.shipping_address.country}</p>
-              </div>
+          {orderDetails?.shipping_address ? (
+          <div className="border-b pb-4">
+            <h2 className="text-lg font-semibold text-gray-800">Shipping Address</h2>
+            <div className="mt-2 space-y-1">
+              {orderDetails.shipping_address.line1 && <p>{orderDetails.shipping_address.line1}</p>}
+              {orderDetails.shipping_address.line2 && <p>{orderDetails.shipping_address.line2}</p>}
+              <p>
+                {[
+                  orderDetails.shipping_address.city,
+                  orderDetails.shipping_address.state,
+                  orderDetails.shipping_address.postal_code
+                ]
+                .filter(Boolean)
+                .join(', ')}
+              </p>
+              {orderDetails.shipping_address.country && <p>{orderDetails.shipping_address.country}</p>}
             </div>
-          )}
+          </div>
+        ) : (
+          <div className="border-b pb-4">
+            <h2 className="text-lg font-semibold text-gray-800">Shipping Address</h2>
+            <p className="text-gray-500 mt-2">No shipping address provided</p>
+          </div>
+        )}
 
           {/* Delivery Information */}
           <div>
@@ -175,7 +167,9 @@ const fetchOrderDetails = async () => {
             <div className="mt-2 space-y-2">
               <p>
                 <span className="font-medium">Estimated Delivery:</span>{" "}
-                {orderDetails?.delivery_date || "Calculating..."}
+                {orderDetails?.delivery_date ? 
+                  new Date(orderDetails.delivery_date).toLocaleDateString() : 
+                  "Calculating..."}
               </p>
               {delayAdded ? (
                 <div className="flex items-start p-3 bg-yellow-50 rounded-md">

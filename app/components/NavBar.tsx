@@ -43,6 +43,9 @@ export default function NavBar() {
                 <Link href="/" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</Link>
                 <Link href="/services" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Request Services</Link>
                 <Link href="/custom-pc" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Buy a customized computer</Link>
+                { session!=null && (
+                  <Link href="/orders" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">My Orders</Link>
+                )}
               </div>
             </div>
           </div>
