@@ -12,9 +12,10 @@ interface DropdownProps {
   category: string;
   selectedComponent: ComponentOption | null;
   setSelectedComponent: (component: ComponentOption | null) => void;
+  serviceFees: number;
 }
 
-const Dropdown: React.FC<DropdownProps> = ({ category, selectedComponent, setSelectedComponent }) => {
+const Dropdown: React.FC<DropdownProps> = ({ category, selectedComponent, setSelectedComponent, serviceFees }) => {
   const [options, setOptions] = useState<ComponentOption[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,7 +60,7 @@ const Dropdown: React.FC<DropdownProps> = ({ category, selectedComponent, setSel
       </select>
       {selectedComponent && (
         <p className="mt-2 text-sm text-indigo-400 text-center">
-          Selected: {selectedComponent.name} - ${selectedComponent.price}
+          Selected: {selectedComponent.name} - ${selectedComponent.price}* Added Service Fee: {serviceFees}
         </p>
       )}
     </div>

@@ -1,30 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import Dropdown from "../components/Dropdown";
 import NavBar from "../components/NavBar";
-import { supabase } from "../lib/supabase"; // Updated import
+import { supabase } from "../lib/supabase";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 const categories = ["cpu", "motherboard", "memory", "storage", "graphics", "power", "case"];
 
 const CustomPCBuilder = () => {
   const [selectedComponents, setSelectedComponents] = useState<{ [key: string]: any }>({});
+  const [serviceFees, setServiceFees] = useState(20);
+  
+  // Track number of selected components to calculate service fees
+  const componentCount = Object.keys(selectedComponents).length;
+
+  // Update service fees whenever component count changes
+  useEffect(() => {
+    setServiceFees(20 + (componentCount * 15));
+  }, [componentCount]);
 
   const setComponent = (category: string, component: any) => {
     setSelectedComponents((prev) => ({ ...prev, [category]: component }));
   };
 
-  const totalPrice = Object.values(selectedComponents).reduce(
-    (sum, component) => sum + (component?.price + 50 || 0),
-    0
-  );
+  // Calculate total price
+  const totalPrice = useMemo(() => {
+    return Object.values(selectedComponents).reduce(
+      (sum, component) => sum + (component?.price || 0),
+      0
+    ) + serviceFees;
+  }, [selectedComponents, serviceFees]);
 
   const handleCheckout = async () => {
     const stripe = await stripePromise;
-
-    // Get user session
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (!user) {
@@ -40,7 +50,7 @@ const CustomPCBuilder = () => {
         },
         body: JSON.stringify({
           items: Object.values(selectedComponents),
-          // Removed userId since it's now handled server-side via session
+          serviceFee: serviceFees // Include service fee in checkout
         }),
       });
 
@@ -76,6 +86,7 @@ const CustomPCBuilder = () => {
               category={category}
               selectedComponent={selectedComponents[category]}
               setSelectedComponent={(component) => setComponent(category, component)}
+              serviceFees={serviceFees}
             />
           ))}
 
@@ -83,12 +94,15 @@ const CustomPCBuilder = () => {
             <h2 className="text-xl font-semibold text-center">
               Total Price: ${totalPrice.toFixed(2)}
             </h2>
+            <h2 className="text-xl font-semibold text-center">
+              Service Fees: ${serviceFees.toFixed(2)} ({componentCount} component{componentCount !== 1 ? 's' : ''})
+            </h2>
           </div>
 
           <button
             onClick={handleCheckout}
             className="mt-4 w-full bg-blue-600 text-black py-2 rounded-lg hover:bg-blue-700"
-            disabled={totalPrice === 0}
+            disabled={componentCount === 0}
           >
             Checkout with Stripe
           </button>
