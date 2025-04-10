@@ -3,7 +3,7 @@ import NavBar from "../components/NavBar";
 
 export default function Page() {
     return (
-        <div className="bg-gradient-to-bl from-indigo-900 to-cyan-600">
+        <div className="bg-gradient-to-bl from-indigo-900 to-cyan-600 h-screen">
             <NavBar />
             <AdminControls/>
         </div>

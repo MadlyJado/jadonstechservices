@@ -7,7 +7,7 @@ export default function Page() {
     return (
         <>
             <NavBar />
-        <div className="h-screen w-screen bg-gradient-to-b from-violet-400 to-fuchsia-950">
+        <div className="bg-gradient-to-b from-violet-400 to-fuchsia-950 h-screen">
             
             <h1 className="text-5xl text-white text-center">Orders</h1>
             <OrderGrid />
