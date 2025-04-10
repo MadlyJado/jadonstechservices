@@ -11,7 +11,7 @@ export default function NavBar() {
   const [session, setSession] = useState<any>(null);
   const [mounted, setMounted] = useState(false); // Track if component is mounted
   const router = useRouter();
-  const uid = process.env.NEXT_PUBLIC_ADMIN_UID;
+  const uid = process.env.NEXT_PUBLIC_ADMIN_UID!;
   
   useEffect(() => {
     setMounted(true); // Set mounted to true when component mounts
