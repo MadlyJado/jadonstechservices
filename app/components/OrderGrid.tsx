@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { format, toZonedTime } from 'date-fns-tz';
+import ComponentCard from './ComponentCard';
 
 interface ShippingInfo {
   line1?: string;
@@ -10,6 +11,22 @@ interface ShippingInfo {
   state?: string;
   postal_code?: string;
   country?: string;
+}
+
+interface Component {
+  name: string;
+  price: number;
+  id: string;
+}
+
+interface Components {
+  cpu?: Component;
+  motherboard?: Component;
+  memory?: Component;
+  storage?: Component;
+  graphics?: Component;
+  power?: Component;
+  case?: Component;
 }
 
 interface Order {
@@ -21,6 +38,7 @@ interface Order {
   status: string;
   order_date: string;
   delay_added: boolean;
+  components?: Components;
 }
 
 export default function OrderGrid() {
@@ -30,7 +48,6 @@ export default function OrderGrid() {
   const [timezone, setTimezone] = useState<string>('');
 
   useEffect(() => {
-    // Set timezone on client side
     setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
     
     async function fetchOrders() {
@@ -82,6 +99,13 @@ export default function OrderGrid() {
     ].filter(Boolean).join('\n');
   };
 
+  const calculateTotal = (components: Components) => {
+    return Object.values(components).reduce(
+      (total, component) => total + (component?.price || 0),
+      0
+    );
+  };
+
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Your Orders</h1>
@@ -114,7 +138,7 @@ export default function OrderGrid() {
               <div>
                 <h2 className="font-semibold text-lg">Order #{order.id}</h2>
                 <p className="text-sm text-gray-500">
-                  {formatOrderDate(order.order_date)} {/* Fixed missing parenthesis */}
+                  {formatOrderDate(order.order_date)}
                 </p>
               </div>
               <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -166,6 +190,30 @@ export default function OrderGrid() {
                 </div>
               </div>
             </div>
+
+            {order.components && (
+              <div className="mt-6">
+                <h3 className="font-medium text-gray-700 mb-3">PC Components</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {Object.entries(order.components).map(([type, component]) => (
+                    component && (
+                      <ComponentCard 
+                        key={type} 
+                        type={type} 
+                        component={component} 
+                        variant="user"
+                      />
+                    )
+                  ))}
+                </div>
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="flex justify-between font-medium">
+                    <span>Total:</span>
+                    <span>${(calculateTotal(order.components) / 100).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>

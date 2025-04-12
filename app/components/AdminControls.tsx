@@ -1,16 +1,23 @@
 'use client';
-
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useRouter } from 'next/navigation';
+import ComponentCard from './ComponentCard';
 
-interface Order {
+interface Component {
+  name: string;
+  price: number;
   id: string;
-  session_id: string;
-  delay_added: boolean;
-  status: string;
-  delivery_date: string;
-  shipping_address: ShippingInfo;
+}
+
+interface Components {
+  cpu?: Component;
+  motherboard?: Component;
+  memory?: Component;
+  storage?: Component;
+  graphics?: Component;
+  power?: Component;
+  case?: Component;
 }
 
 interface ShippingInfo {
@@ -20,6 +27,16 @@ interface ShippingInfo {
   state?: string;
   postal_code?: string;
   country?: string;
+}
+
+interface Order {
+  id: string;
+  session_id: string;
+  delay_added: boolean;
+  status: string;
+  delivery_date: string;
+  shipping_address: ShippingInfo;
+  components?: Components;
 }
 
 export default function AdminControls() {
@@ -39,7 +56,6 @@ export default function AdminControls() {
     if (!selectedOrder) return;
     
     try {
-
       const { data, error } = await supabase
         .from("orders")
         .update({ status })
@@ -86,9 +102,6 @@ export default function AdminControls() {
   }, [router, adminUid]);
 
   useEffect(() => {
-    
-
-
     const fetchOrders = async () => {
       try {
         const { data, error } = await supabase.from("orders").select("*");
@@ -100,6 +113,13 @@ export default function AdminControls() {
     };
     fetchOrders();
   }, []);
+
+  const calculateTotal = (components: Components) => {
+    return Object.values(components).reduce(
+      (total, component) => total + (component?.price || 0),
+      0
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-fuchsia-800 to-violet-700 p-6">
@@ -116,7 +136,6 @@ export default function AdminControls() {
           </div>
           
           <div className="grid md:grid-cols-2 gap-8">
-            {/* Order Details */}
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4 text-white">
                 <div>
@@ -157,7 +176,6 @@ export default function AdminControls() {
               </div>
             </div>
 
-            {/* Shipping Address */}
             <div className="bg-white/5 rounded-lg p-6">
               <h3 className="text-lg font-medium text-white mb-4">Shipping Address</h3>
               {selectedOrder.shipping_address ? (
@@ -195,6 +213,30 @@ export default function AdminControls() {
               )}
             </div>
           </div>
+
+          {selectedOrder.components && (
+            <div className="mt-8">
+              <h3 className="text-xl font-bold text-white mb-4">PC Components</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(selectedOrder.components).map(([type, component]) => (
+                  component && (
+                    <ComponentCard
+                      key={type}
+                      type={type}
+                      component={component}
+                      variant="admin"
+                    />
+                  )
+                ))}
+              </div>
+              <div className="mt-6 pt-6 border-t border-white/20">
+                <div className="flex justify-between text-xl font-bold text-white">
+                  <span>Order Total:</span>
+                  <span>${(calculateTotal(selectedOrder.components) / 100).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-md rounded-xl p-6 shadow-lg">
