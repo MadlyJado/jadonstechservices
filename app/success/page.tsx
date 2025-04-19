@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "../lib/supabase";
 import ComponentCard from "../components/ComponentCard";
+import Link from "next/link";
 
 interface ShippingInfo {
   name?: string;
@@ -290,6 +291,9 @@ export default function Success() {
               Order Reference: {sessionId}
             </p>
           )}
+        </div>
+        <div className="btn-primary btn-large">
+            <Link href="/">Back to homepage</Link>
         </div>
       </div>
     </div>

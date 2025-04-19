@@ -11,27 +11,22 @@ const categories = ["cpu", "motherboard", "memory", "storage", "graphics", "powe
 
 const CustomPCBuilder = () => {
   const [selectedComponents, setSelectedComponents] = useState<{ [key: string]: any }>({});
-  const [serviceFees, setServiceFees] = useState(20);
+  const serviceFee = 150;
   
   // Track number of selected components to calculate service fees
   const componentCount = Object.keys(selectedComponents).length;
-
-  // Update service fees whenever component count changes
-  useEffect(() => {
-    setServiceFees(20 + (componentCount * 15));
-  }, [componentCount]);
 
   const setComponent = (category: string, component: any) => {
     setSelectedComponents((prev) => ({ ...prev, [category]: component }));
   };
 
   // Calculate total price
-  const totalPrice = useMemo(() => {
+  var totalPrice = useMemo(() => {
     return Object.values(selectedComponents).reduce(
       (sum, component) => sum + (component?.price || 0),
       0
-    ) + serviceFees;
-  }, [selectedComponents, serviceFees]);
+    ) + serviceFee;
+  }, [selectedComponents, serviceFee]);
 
   const handleCheckout = async () => {
     const stripe = await stripePromise;
@@ -50,7 +45,7 @@ const CustomPCBuilder = () => {
         },
         body: JSON.stringify({
           items: Object.values(selectedComponents),
-          serviceFee: serviceFees // Include service fee in checkout
+          serviceFee: serviceFee // Include service fee in checkout
         }),
       });
 
@@ -86,7 +81,7 @@ const CustomPCBuilder = () => {
               category={category}
               selectedComponent={selectedComponents[category]}
               setSelectedComponent={(component) => setComponent(category, component)}
-              serviceFees={serviceFees}
+              serviceFees={serviceFee}
             />
           ))}
 
@@ -95,7 +90,7 @@ const CustomPCBuilder = () => {
               Total Price: ${totalPrice.toFixed(2)}
             </h2>
             <h2 className="text-xl font-semibold text-center">
-              Service Fees: ${serviceFees.toFixed(2)} ({componentCount} component{componentCount !== 1 ? 's' : ''})
+              Service Fee: ${serviceFee.toFixed(2)} (Flat rate)
             </h2>
           </div>
 

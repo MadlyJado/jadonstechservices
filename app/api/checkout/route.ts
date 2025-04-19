@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { items } = await req.json()
+    const { items, serviceFee } = await req.json()
 
     if (!items || items.length === 0) {
       return NextResponse.json({ error: 'No items provided' }, { status: 400 })
@@ -49,6 +49,18 @@ export async function POST(req: NextRequest) {
       },
       quantity: 1,
     }))
+
+    // Add service fee as a separate line item
+    lineItems.push({
+      price_data: {
+        currency: 'usd',
+        product_data: {
+          name: 'Service Fee',
+        },
+        unit_amount: Math.round(serviceFee * 100),
+      },
+      quantity: 1,
+    })
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
