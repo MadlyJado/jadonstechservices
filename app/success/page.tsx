@@ -292,9 +292,10 @@ export default function Success() {
             </p>
           )}
         </div>
-        <div className="btn-primary btn-large">
-            <Link href="/">Back to homepage</Link>
-        </div>
+        
+      </div>
+      <div className="items-center justify-center">
+            <Link href="/" className="mt-4 btn-lg w-full bg-emerald-500  py-2 rounded-lg text-black">Back to homepage</Link>
       </div>
     </div>
   );
