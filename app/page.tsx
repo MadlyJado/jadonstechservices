@@ -45,6 +45,13 @@ export default function Home() {
           <div className="text-center">
             <h2 className="text-3xl font-bold text-cyan-600 mb-4">I will NEVER overcharge you</h2>
           </div>
+          <div className="rounded-lg bg-indigo-100 flex-col col-auto shadow-md mb-8">
+              <h2 className="text-2xl font-semibold text-amber-600 mb-4 text-center">Testomonials</h2>
+              <h4 className="text-slate-700 text-base mb-8">Its so easy to contact Jadon for help! All I have to do is visit the service request page!! - Jimbob Jones</h4>
+              <h4 className="text-slate-700 text-base mb-8">The website looks very professional, Jadon made it easy to have someone build a computer for me! - Gerald Benard</h4>
+              <h4 className="text-slate-700 text-base mb-8">The website is easy to use! - Rex Holland</h4>
+              <p className="text-slate-700 text-base mb-8">Jadon, the owner of Jadons tech services, has always been kind to me as a customer, never overcharging me ONCE! He truly never overcharges ANYONE! - Kim Young</p>
+          </div>
         </div>
       </main>
     </div>
