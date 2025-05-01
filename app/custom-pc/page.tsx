@@ -2,15 +2,18 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import Dropdown from "../components/Dropdown";
+import CustomPCBuilder from "../components/CustomPCBuilder";
 import NavBar from "../components/NavBar";
 import { supabase } from "../lib/supabase";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 const categories = ["cpu", "motherboard", "memory", "storage", "graphics", "power", "case"];
+const usecases = ["Office", "Productivity", "Gaming"];
+const priceranges = ["Budget", "Mid-Range", "High-End"];
 
-const CustomPCBuilder = () => {
+const CustompcBuilderandPrebuilts = () => {
   const [selectedComponents, setSelectedComponents] = useState<{ [key: string]: any }>({});
+  const [wantsPrebuilt, setWantsPrebuilt] = useState(true);
   const serviceFee = 150;
   
   // Track number of selected components to calculate service fees
@@ -21,7 +24,7 @@ const CustomPCBuilder = () => {
   };
 
   // Calculate total price
-  var totalPrice = useMemo(() => {
+  const totalPrice = useMemo(() => {
     return Object.values(selectedComponents).reduce(
       (sum, component) => sum + (component?.price || 0),
       0
@@ -70,41 +73,48 @@ const CustomPCBuilder = () => {
 
   return (
     <>
-      <NavBar />
-      <div className="bg-gradient-to-tl from-emerald-700 to-indigo-700 flex items-center justify-center min-h-screen">
+    <NavBar />
+     <div className="bg-gradient-to-tl from-emerald-700 to-indigo-700 flex items-center justify-center min-h-screen">
+      {!wantsPrebuilt && (
+         <div>
+            <CustomPCBuilder categories={categories} setComponent={setComponent} selectedComponents={selectedComponents} handleCheckout={handleCheckout} serviceFee={serviceFee} totalPrice={totalPrice} componentCount={componentCount}/>
+            <button className="btn-primary btn-wide bg-amber-600 rounded-lg object-center" onClick={(e) => {
+              switch(wantsPrebuilt.valueOf()){
+                case true:
+                  setWantsPrebuilt(false);
+                  break;
+                case false:
+                  setWantsPrebuilt(true);
+                  break;
+              }
+
+            }}>Don't want to make your own computer from these lists after all? Press this button to go back to the prebuilts</button>
+         </div>
+      )}
+      {wantsPrebuilt && (
         <div className="max-w-3xl mx-auto p-6 mt-10 items-center">
-          <h1 className="text-2xl font-bold mb-6 text-amber-700 text-center">Build Your Custom PC</h1>
-
-          {categories.map((category) => (
-            <Dropdown
-              key={category}
-              category={category}
-              selectedComponent={selectedComponents[category]}
-              setSelectedComponent={(component) => setComponent(category, component)}
-              serviceFees={serviceFee}
-            />
-          ))}
-
-          <div className="mt-6 p-4">
-            <h2 className="text-xl font-semibold text-center">
-              Total Price: ${totalPrice.toFixed(2)}
-            </h2>
-            <h2 className="text-xl font-semibold text-center">
-              Service Fee: ${serviceFee.toFixed(2)} (Flat rate)
-            </h2>
-          </div>
-
-          <button
-            onClick={handleCheckout}
-            className="mt-4 w-full bg-blue-600 text-black py-2 rounded-lg hover:bg-blue-700"
-            disabled={componentCount === 0}
-          >
-            Checkout with Stripe
-          </button>
+            <select className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200 text-center">
+              <option>Pick a use-case for your computer</option>
+              {usecases.map((usecase) => (
+                <option key={usecase}>{usecase}</option>
+              ))}
+            </select>
+            <button className="mt-4 w-full bg-amber-600 text-black py-2 rounded-lg hover:bg-amber-400" onClick={(e) => {
+              switch(wantsPrebuilt.valueOf()){
+                case true:
+                  setWantsPrebuilt(false);
+                  break;
+                case false:
+                  setWantsPrebuilt(true);
+                  break;
+              }
+            }}>Want to make the computer yourself?? Click here! (Warning: For people advanced in pc building!)</button>
+            {}
         </div>
+      )}
       </div>
     </>
   );
 };
 
-export default CustomPCBuilder;
+export default CustompcBuilderandPrebuilts;
