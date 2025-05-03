@@ -31,7 +31,7 @@ export default function NavBar() {
 
   async function handleSignOut() {
     await supabase.auth.signOut();
-    router.push('/');
+    router.push('https://techservices.jadonc-network.xyz/');
   }
 
   return (
@@ -51,14 +51,14 @@ export default function NavBar() {
             </Link>
             <div className="hidden md:block ml-10">
               <div className="flex items-baseline space-x-4">
-                <Link href="/" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</Link>
-                <Link href="/services" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Request Services</Link>
-                <Link href="/custom-pc" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Buy a customized computer</Link>
+                <Link href="https://techservices.jadonc-network.xyz/" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</Link>
+                <Link href="https://techservices.jadonc-network.xyz/services" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Request Services</Link>
+                <Link href="https://techservices.jadonc-network.xyz/custom-pc" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Buy a customized computer</Link>
                 {mounted && session && (
-                  <Link href="/orders" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">My Orders</Link>
+                  <Link href="https://techservices.jadonc-network.xyz/orders" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">My Orders</Link>
                 )}
                 {mounted && isAdmin && (
-                  <Link href="/admin" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Admin Portal</Link>
+                  <Link href="https://techservices.jadonc-network.xyz/admin" className="text-violet-300 hover:bg-stone-600 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Admin Portal</Link>
                 )}
               </div>
             </div>
@@ -76,10 +76,10 @@ export default function NavBar() {
               </div>
             ) : mounted ? (
               <>
-                <Link href="/login" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                <Link href="https://techservices.jadonc-network.xyz/login" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
                   Login
                 </Link>
-                <Link href="/signup" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                <Link href="https://techservices.jadonc-network.xyz/signup" className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
                   Sign Up
                 </Link>
               </>

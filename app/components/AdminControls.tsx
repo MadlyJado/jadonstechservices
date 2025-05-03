@@ -49,7 +49,7 @@ export default function AdminControls() {
 
   const deselectOrder = () => {
     setSelectedOrder(null);
-    router.push("/admin");
+    router.push("https://techservices.jadonc-network.xyz/admin");
   };
 
   const changeStatus = async () => {
