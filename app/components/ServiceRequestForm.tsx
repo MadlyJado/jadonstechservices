@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import Head from 'next/head';
 
 interface FormData {
   name: string;
@@ -35,44 +36,73 @@ export default function ServiceRequestForm() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="card w-96 bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title text-slate-400">Service Request</h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <input
-              {...register("name", { required: "Name is required" })}
-              type="text"
-              placeholder="Name"
-              className="input input-bordered w-full text-slate-500"
-            />
-            {errors.name && <p className="text-red-500">{errors.name.message}</p>}
-            <input
-              {...register("email", { 
-                required: "Email is required",
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: "Invalid email address"
-                }
-              })}
-              type="email"
-              placeholder="Email"
-              className="input input-bordered w-full text-slate-300"
-            />
-            {errors.email && <p className="text-red-500">{errors.email.message}</p>}
-            <textarea
-              {...register("message", { required: "Message is required" })}
-              placeholder="Describe your service request"
-              className="textarea textarea-bordered w-full text-slate-300"
-            />
-            {errors.message && <p className="text-red-500">{errors.message.message}</p>}
-            <button type="submit" className="btn btn-primary w-full">
-              Submit Request
-            </button>
-          </form>
-          {status && <p className="text-center mt-4">{status}</p>}
+    <>
+      <Head>
+        <title>Service Request Form | Jadon's Tech Services</title>
+        <meta name="description" content="Submit your IT service request form for fast and reliable computer repair services." />
+      </Head>
+      
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="card w-96 bg-base-100 shadow-xl">
+          <div className="card-body">
+            <h1 className="card-title text-slate-400 text-2xl">Service Request</h1>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" aria-labelledby="service-request-heading">
+              <div>
+                <label htmlFor="name" className="sr-only">Name</label>
+                <input
+                  id="name"
+                  {...register("name", { required: "Name is required" })}
+                  type="text"
+                  placeholder="Name"
+                  className="input input-bordered w-full text-slate-500"
+                  aria-required="true"
+                />
+                {errors.name && <p className="text-red-500" role="alert">{errors.name.message}</p>}
+              </div>
+              
+              <div>
+                <label htmlFor="email" className="sr-only">Email</label>
+                <input
+                  id="email"
+                  {...register("email", { 
+                    required: "Email is required",
+                    pattern: {
+                      value: /\S+@\S+\.\S+/,
+                      message: "Invalid email address"
+                    }
+                  })}
+                  type="email"
+                  placeholder="Email"
+                  className="input input-bordered w-full text-slate-300"
+                  aria-required="true"
+                />
+                {errors.email && <p className="text-red-500" role="alert">{errors.email.message}</p>}
+              </div>
+              
+              <div>
+                <label htmlFor="message" className="sr-only">Service Request Details</label>
+                <textarea
+                  id="message"
+                  {...register("message", { required: "Message is required" })}
+                  placeholder="Describe your service request"
+                  className="textarea textarea-bordered w-full text-slate-300"
+                  aria-required="true"
+                />
+                {errors.message && <p className="text-red-500" role="alert">{errors.message.message}</p>}
+              </div>
+              
+              <button 
+                type="submit" 
+                className="btn btn-primary w-full"
+                aria-label="Submit service request"
+              >
+                Submit Request
+              </button>
+            </form>
+            {status && <p className="text-center mt-4" role="status">{status}</p>}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
